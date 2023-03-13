@@ -17,19 +17,29 @@ static inline void _decode_sse41_opt(uint8_t **key,
   __m128i Data = _mm_loadu_si128((__m128i *)*dataPtrPtr);
   uint8_t *pshuf = (uint8_t *) &shuffleTable[**key];
   __m128i Shuf = *(__m128i *)pshuf;
-#ifdef AVOIDLENGTHLOOKUP
-  // this avoids the dependency on lengthTable,
-  // see https://github.com/lemire/streamvbyte/issues/12
-  len = pshuf[12 + (key >> 6)] + 1;
-#else
-  len = lengthTable[**key];
-#endif
-  Data = _mm_shuffle_epi8(Data, Shuf);
-  *dataPtrPtr += len;
 
-  _write_sse41_opt(*outPtrPtr, Data);
+  len = lengthTable[**key];
+
+  __m128i ShuffledData = _mm_shuffle_epi8(Data, Shuf);
+
+  _write_sse41_opt(*outPtrPtr, ShuffledData);
   *outPtrPtr += 4;
   *key += 1;
+  *dataPtrPtr += len;
+
+  uint8_t len2 = lengthTable[**key];
+
+  // if (len + len2 <= 16) {
+  //   pshuf = (uint8_t *) &shuffleTable[**key];
+  //   Shuf = *(__m128i *)pshuf;
+
+  //   ShuffledData = _mm_shuffle_epi8(Data, Shuf);
+  //   _write_sse41_opt(*outPtrPtr, ShuffledData);
+  //   *outPtrPtr += 4;
+  //   *key += 1;
+  //   *dataPtrPtr += len2;
+  // }
+  
 }
 STREAMVBYTE_UNTARGET_REGION
 
@@ -43,10 +53,12 @@ const uint8_t *svb_decode_sse41_simple_opt(uint32_t *out,
 
   uint64_t keybytes = count / 4; // number of key bytes
 
+  uint8_t *keyEnd = (size_t)keyPtr + keybytes;
+
   uint8_t *keyPtr8 = (uint8_t *)keyPtr;
 
   if (keybytes >= 1) {
-    for (; keybytes > 0; keybytes--) {
+    while (keyPtr8 < keyEnd) {
       _decode_sse41_opt(&keyPtr8, &dataPtr, &out);
     }
   }
