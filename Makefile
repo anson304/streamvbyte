@@ -41,7 +41,7 @@ uninstall:
 	ldconfig
 
 
-OBJECTS= streamvbyte_decode.o streamvbyte_encode.o streamvbytedelta_decode.o streamvbytedelta_encode.o streamvbyte_0124_encode.o  streamvbyte_0124_decode.o streamvbyte_zigzag.o
+OBJECTS= streamvbyte_decode.o streamvbyte_encode.o streamvbytedelta_decode.o streamvbyte_decode_opt.o streamvbytedelta_encode.o streamvbyte_0124_encode.o  streamvbyte_0124_decode.o streamvbyte_zigzag.o
 
 streamvbyte_zigzag.o: ./src/streamvbyte_zigzag.c $(HEADERS)
 	$(CC) $(CFLAGS) -c ./src/streamvbyte_zigzag.c -Iinclude
@@ -61,6 +61,9 @@ streamvbyte_0124_decode.o: ./src/streamvbyte_0124_decode.c $(HEADERS)
 
 streamvbyte_decode.o: ./src/streamvbyte_decode.c $(HEADERS)
 	$(CC) $(CFLAGS) -c ./src/streamvbyte_decode.c -Iinclude
+
+streamvbyte_decode_opt.o: ./src/streamvbyte_decode_opt.c $(HEADERS)
+	$(CC) $(CFLAGS) -c ./src/streamvbyte_decode_opt.c -Iinclude
 
 streamvbyte_encode.o: ./src/streamvbyte_encode.c $(HEADERS)
 	$(CC) $(CFLAGS) -c ./src/streamvbyte_encode.c -Iinclude
@@ -82,6 +85,8 @@ example: ./examples/example.c    $(HEADERS) $(OBJECTS)
 perf: ./tests/perf.c    $(HEADERS) $(OBJECTS)
 	$(CC) $(CFLAGS) -o perf ./tests/perf.c -Iinclude  $(OBJECTS) -lm
 
+perf_opt: ./tests/perf_opt.c    $(HEADERS) $(OBJECTS)
+	$(CC) $(CFLAGS) -o perf_opt ./tests/perf_opt.c -Iinclude  $(OBJECTS) -lm
 
 writeseq: ./tests/writeseq.c    $(HEADERS) $(OBJECTS)
 	$(CC) $(CFLAGS) -o writeseq ./tests/writeseq.c -Iinclude  $(OBJECTS)
@@ -93,4 +98,4 @@ dynunit: ./tests/unit.c    $(HEADERS) $(LIBNAME) $(LNLIBNAME)
 	$(CC) $(CFLAGS) -o dynunit ./tests/unit.c -Iinclude  -L. -lstreamvbyte
 
 clean:
-	rm -f unit *.o $(LIBNAME) $(LNLIBNAME)  example shuffle_tables perf writeseq dynunit
+	rm -f unit *.o $(LIBNAME) $(LNLIBNAME)  example shuffle_tables perf perf_v2 writeseq dynunit
