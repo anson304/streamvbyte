@@ -92,6 +92,7 @@ static inline size_t streamvbyte_compressedbytes_0124(const uint32_t *in, uint32
 // There is no alignment requirement on the "in" pointer.
 // The out pointer should point to length * sizeof(uint32_t) bytes.
 size_t streamvbyte_decode(const uint8_t *in, uint32_t *out, uint32_t length);
+size_t streamvbyte_decode_opt(const uint8_t *in, uint32_t *out, uint32_t length);
 
 // Same as streamvbyte_decode but is meant to be used for streams encoded with
 // streamvbyte_encode_0124.
