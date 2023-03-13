@@ -30,14 +30,14 @@ static inline void _decode_sse41_opt(uint8_t **key,
   uint8_t len2 = lengthTable[**key];
 
   // if (len + len2 <= 16) {
-  //   pshuf = (uint8_t *) &shuffleTable[**key];
-  //   Shuf = *(__m128i *)pshuf;
+    pshuf = (uint8_t *) &shuffleTable[**key];
+    Shuf = *(__m128i *)pshuf;
 
-  //   ShuffledData = _mm_shuffle_epi8(Data, Shuf);
-  //   _write_sse41_opt(*outPtrPtr, ShuffledData);
-  //   *outPtrPtr += 4;
-  //   *key += 1;
-  //   *dataPtrPtr += len2;
+    ShuffledData = _mm_shuffle_epi8(Data, Shuf);
+    _write_sse41_opt(*outPtrPtr, ShuffledData);
+    *outPtrPtr += 4;
+    *key += 1;
+    *dataPtrPtr += len2;
   // }
   
 }
