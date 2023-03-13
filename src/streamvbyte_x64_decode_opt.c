@@ -36,70 +36,16 @@ const uint8_t *svb_decode_sse41_simple_opt(uint32_t *out,
                                      uint64_t count) {
 
   uint64_t keybytes = count / 4; // number of key bytes
+
+  const uint8_t *keyPtr8 = (const uint8_t *)keyPtr;
+
   __m128i Data;
-  if (keybytes >= 8) {
-
-    int64_t Offset = -(int64_t)keybytes / 8 + 1;
-
-    const uint64_t *keyPtr64 = (const uint64_t *)keyPtr - Offset;
-    uint64_t nextkeys;
-    memcpy(&nextkeys, keyPtr64 + Offset, sizeof(nextkeys));
-    for (; Offset != 0; ++Offset) {
-      uint64_t keys = nextkeys;
-      memcpy(&nextkeys, keyPtr64 + Offset + 1, sizeof(nextkeys));
-
-      Data = _decode_sse41_opt((keys & 0xFF), &dataPtr);
+  if (keybytes >= 1) {
+    for (; keybytes > 0; keybytes--) {
+      Data = _decode_sse41_opt(*keyPtr8, &dataPtr);
       _write_sse41_opt(out, Data);
-      Data = _decode_sse41_opt((keys & 0xFF00) >> 8, &dataPtr);
-      _write_sse41_opt(out + 4, Data);
-
-      keys >>= 16;
-      Data = _decode_sse41_opt((keys & 0xFF), &dataPtr);
-      _write_sse41_opt(out + 8, Data);
-      Data = _decode_sse41_opt((keys & 0xFF00) >> 8, &dataPtr);
-      _write_sse41_opt(out + 12, Data);
-
-      keys >>= 16;
-      Data = _decode_sse41_opt((keys & 0xFF), &dataPtr);
-      _write_sse41_opt(out + 16, Data);
-      Data = _decode_sse41_opt((keys & 0xFF00) >> 8, &dataPtr);
-      _write_sse41_opt(out + 20, Data);
-
-      keys >>= 16;
-      Data = _decode_sse41_opt((keys & 0xFF), &dataPtr);
-      _write_sse41_opt(out + 24, Data);
-      Data = _decode_sse41_opt((keys & 0xFF00) >> 8, &dataPtr);
-      _write_sse41_opt(out + 28, Data);
-
-      out += 32;
-    }
-    {
-      uint64_t keys = nextkeys;
-
-      Data = _decode_sse41_opt((keys & 0xFF), &dataPtr);
-      _write_sse41_opt(out, Data);
-      Data = _decode_sse41_opt((keys & 0xFF00) >> 8, &dataPtr);
-      _write_sse41_opt(out + 4, Data);
-
-      keys >>= 16;
-      Data = _decode_sse41_opt((keys & 0xFF), &dataPtr);
-      _write_sse41_opt(out + 8, Data);
-      Data = _decode_sse41_opt((keys & 0xFF00) >> 8, &dataPtr);
-      _write_sse41_opt(out + 12, Data);
-
-      keys >>= 16;
-      Data = _decode_sse41_opt((keys & 0xFF), &dataPtr);
-      _write_sse41_opt(out + 16, Data);
-      Data = _decode_sse41_opt((keys & 0xFF00) >> 8, &dataPtr);
-      _write_sse41_opt(out + 20, Data);
-
-      keys >>= 16;
-      Data = _decode_sse41_opt((keys & 0xFF), &dataPtr);
-      _write_sse41_opt(out + 24, Data);
-      Data = _decode_sse41_opt((keys & 0xFF00) >> 8, &dataPtr);
-      _write_sse41_opt(out + 28, Data);
-
-      out += 32;
+      keyPtr8++;
+      out += 4;
     }
   }
   return dataPtr;
